@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Bookings - Game ONN</title>
+    <style>
+        body { font-family: Arial; background: #121212; color: white; margin: 0; }
+        .header { background: #1f1f1f; padding: 20px; text-align: center; }
+        .header h1 { color: #4CAF50; margin: 0; }
+        .container { padding: 20px; max-width: 1200px; margin: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
+        th, td { padding: 12px; border: 1px solid #444; text-align: left; }
+        thead { background-color: #333; }
+        .no-bookings { text-align: center; color: #888; padding: 40px; }
+        .nav { margin: 20px 0; }
+        .nav a { color: #4CAF50; text-decoration: none; margin-right: 15px; padding: 8px 15px; background: #333; border-radius: 5px; }
+        .nav a:hover { background: #444; }
+        .price-breakdown { font-size: 0.8em; color: #ccc; }
+    </style>
+</head>
+<body>
+
+    <div class="user-info" style="text-align: right; padding: 10px 20px; background-color: #222; border-bottom: 1px solid #444;">
+    <span id="welcome-message"></span>
+    <a href="#" onclick="logout()" style="color: #d9534f; margin-left: 15px; text-decoration: none;">Logout</a>
+</div>
+
+    <div class="header">
+        <h1>🎮 My Bookings</h1>
+    </div>
+    <div class="container">
+        <div class="nav">
+            <a href="index.html">Home</a>
+        </div>
+        <h2>Your Booking History</h2>
+        <div id="bookings-container">
+            <div class="no-bookings">Loading your bookings...</div>
+        </div>
+    </div>
+
+    <script>
+const username = localStorage.getItem('username');
+if (username) {
+    document.getElementById('welcome-message').textContent = `Welcome, ${username}!`;
+}
+
+function logout() {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    window.location.href = 'login.html';
+}
+
+        async function loadMyBookings() {
+            const userId = localStorage.getItem('userId');
+            
+            if (!userId) {
+                alert("Please login to view your bookings");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/my-bookings/${userId}`);
+                const bookings = await response.json();
+                const container = document.getElementById('bookings-container');
+                
+                if (bookings.length === 0) {
+                    container.innerHTML = '<div class="no-bookings">No bookings found.</div>';
+                    return;
+                }
+
+                let html = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Slot</th>
+                                <th>Booked On</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Total Price</th>
+                                <th>Snacks Ordered</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                bookings.forEach(booking => {
+                    const hasSnacks = booking.snacks_total > 0;
+                    const priceBreakdown = hasSnacks ? 
+                        `<div class="price-breakdown">Slot: ₹${booking.slot_total} + Snacks: ₹${booking.snacks_total}</div>` : '';
+                    
+                    html += `
+                        <tr>
+                            <td>${booking.booking_id}</td>
+                            <td>${booking.slot_name}</td>
+                            <td>${new Date(booking.booking_time).toLocaleString()}</td>
+                            <td>${new Date(booking.start_time).toLocaleString()}</td>
+                            <td>${new Date(booking.end_time).toLocaleString()}</td>
+                            <td>
+                                <strong>₹${booking.grand_total}</strong>
+                                ${priceBreakdown}
+                            </td>
+                            <td>${booking.ordered_snacks || 'None'}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                document.getElementById('bookings-container').innerHTML = 
+                    '<div class="no-bookings">Error loading bookings. Please try again later.</div>';
+            }
+        }
+
+        window.onload = loadMyBookings;
+    </script>
+</body>
+</html>

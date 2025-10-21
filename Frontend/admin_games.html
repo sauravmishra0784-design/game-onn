@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Games - Game ONN</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1a1a1a; color: white; }
+        .container { padding: 20px; }
+        h1, h2 { color: #d9534f; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #444; text-align: left; }
+        thead { background-color: #333; }
+        .nav-buttons a {
+            text-decoration: none; 
+            background-color: #5cb85c; 
+            color: white; 
+            padding: 10px 15px; 
+            border-radius: 5px;
+            margin-right: 10px;
+            display: inline-block;
+        }
+        .add-game-form {
+            background: #333;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+        }
+        input { background: #222; color: white; width: 200px; }
+        .add-btn { background: #5cb85c; color: white; cursor: pointer; }
+        .delete-btn { background: #d9534f; color: white; cursor: pointer; }
+        button:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Games</h1>
+
+        <div class="nav-buttons">
+            <a href="admin.html">Dashboard</a>
+        </div>
+
+        <div class="add-game-form">
+            <h3>Add New Game</h3>
+            <form id="addGameForm">
+                <input type="text" id="gameName" placeholder="Game Name" required>
+                <input type="text" id="gameGenre" placeholder="Genre">
+                <button type="submit" class="add-btn">Add Game</button>
+            </form>
+        </div>
+
+        <h2>Available Games</h2>
+        <table id="games-table">
+            <thead>
+                <tr>
+                    <th>Game ID</th>
+                    <th>Game Name</th>
+                    <th>Genre</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="games-tbody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        async function loadGames() {
+            try {
+                const response = await fetch('http://localhost:3000/admin/games');
+                const games = await response.json();
+                const tbody = document.getElementById('games-tbody');
+                tbody.innerHTML = '';
+                
+                games.forEach(game => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${game.game_id}</td>
+                        <td>${game.game_name}</td>
+                        <td>${game.genre || '-'}</td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteGame(${game.game_id})">
+                                Delete
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading games:', error);
+                alert('Error loading games');
+            }
+        }
+
+        document.getElementById('addGameForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const gameData = {
+                game_name: document.getElementById('gameName').value,
+                genre: document.getElementById('gameGenre').value
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/admin/games', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gameData)
+                });
+
+                const result = await response.text();
+                
+                if (response.ok) {
+                    alert('Game added successfully!');
+                    document.getElementById('addGameForm').reset();
+                    loadGames();
+                } else {
+                    alert('Error: ' + result);
+                }
+            } catch (error) {
+                console.error('Error adding game:', error);
+                alert('Error adding game');
+            }
+        });
+
+        async function deleteGame(gameId) {
+            if (!confirm('Are you sure you want to delete this game?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/admin/games/${gameId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Game deleted successfully!');
+                    loadGames();
+                } else {
+                    const error = await response.text();
+                    alert('Error: ' + error);
+                }
+            } catch (error) {
+                console.error('Error deleting game:', error);
+                alert('Error deleting game');
+            }
+        }
+
+        window.onload = loadGames;
+    </script>
+</body>
+</html>

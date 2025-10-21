@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Game ONN - Register</title>
+  <style>
+    body { font-family: Arial; background: #222; color: white; text-align: center; }
+    form { background: #333; padding: 20px; margin: 100px auto; width: 300px; border-radius: 10px; }
+    input { width: 90%; padding: 8px; margin: 8px 0; border: none; border-radius: 5px; }
+    button { background: green; color: white; padding: 10px; border: none; border-radius: 5px; width: 100%; }
+    button:hover { background: darkgreen; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>Game ONN - Register</h2>
+  <form id="registerForm">
+    <input type="text" name="username" placeholder="Username" required><br>
+    <input type="email" name="email" placeholder="Email" required><br>
+    <input type="text" name="phone" placeholder="Phone"><br>
+    <input type="password" name="password" placeholder="Password" required><br>
+    <button type="submit">Register</button>
+  </form>
+
+  <p>Already have an account? <a href="login.html" style="color: lightblue;">Login here</a></p>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+
+      const response = await fetch("http://localhost:3000/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.text();
+      alert(result);
+    });
+  </script>
+</body>
+</html>

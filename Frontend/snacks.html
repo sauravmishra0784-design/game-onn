@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game ONN - Order Snacks</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: white; margin: 0; padding: 0; }
+        .header { background: #1f1f1f; padding: 20px; text-align: center; }
+        .header h1 { color: #4CAF50; margin: 0; }
+        .container { padding: 20px; max-width: 600px; margin: auto; }
+        #snack-menu { list-style-type: none; padding: 0; }
+        #snack-menu li {
+            background: #2c2c2c;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        form { margin-top: 30px; background: #1f1f1f; padding: 20px; border-radius: 8px; }
+        label { display: block; margin-top: 15px; }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background: #2c2c2c;
+            color: white;
+            box-sizing: border-box;
+        }
+        button { background: #4CAF50; cursor: pointer; font-size: 1.1em; }
+        button:hover { background: #45a049; }
+        
+        #cart {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #333;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .remove-btn {
+            background: #d9534f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="user-info" style="text-align: right; padding: 10px 20px; background-color: #222; border-bottom: 1px solid #444;">
+    <span id="welcome-message"></span>
+    <a href="#" onclick="logout()" style="color: #d9534f; margin-left: 15px; text-decoration: none;">Logout</a>
+</div>
+
+    <div class="header">
+        <h1>Order Snacks</h1>
+    </div>
+
+    <nav style="text-align: center; margin: 20px 0;">
+        <a href="index.html" style="color: #4CAF50; margin: 0 15px;">Home</a>
+    </nav>
+
+    <div class="container">
+
+        <h2>Our Menu</h2>
+        <ul id="snack-menu">
+            </ul>
+
+        <form id="order-form">
+            <h2>Place Your Order</h2>
+            <p>You can order multiple snacks in one order.</p>
+            
+            <label for="booking-id">Your Booking ID:</label>
+            <input type="number" id="booking-id" name="booking_id" placeholder="Enter the ID from your booking" required>
+
+            <div id="cart">
+                <h3>🛒 Your Order</h3>
+                <div id="cart-items">
+                    <p style="color: #888; text-align: center;">No items added yet</p>
+                </div>
+                <div id="cart-total" style="text-align: right; margin-top: 15px; font-weight: bold;">
+                    Total: ₹0
+                </div>
+            </div>
+
+            <div style="background: #2a2a2a; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <h4>Add Item to Order</h4>
+                <select id="snack-select" style="width: 100%; padding: 8px; margin: 5px 0; background: #333; color: white; border: 1px solid #444;">
+                    <option value="">--Select a snack--</option>
+                </select>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <input type="number" id="quantity" value="1" min="1" max="10" style="flex: 1; padding: 8px; background: #333; color: white; border: 1px solid #444;">
+                    <button type="button" onclick="addToCart()" style="background: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; width: auto;">
+                        Add to Order
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" style="background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 5px; width: 100%; font-size: 1.1em; cursor: pointer;">
+                🍕 Place Order (₹<span id="total-amount">0</span>)
+            </button>
+        </form>
+    </div>
+
+    <script>
+const username = localStorage.getItem('username');
+if (username) {
+    document.getElementById('welcome-message').textContent = `Welcome, ${username}!`;
+}
+
+function logout() {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    window.location.href = 'login.html';
+}
+
+        let cart = [];
+        let snacks = [];
+
+        function addToCart() {
+            const snackSelect = document.getElementById('snack-select');
+            const quantityInput = document.getElementById('quantity');
+            
+            const snackId = parseInt(snackSelect.value);
+            const quantity = parseInt(quantityInput.value);
+            
+            if (!snackId || quantity < 1) {
+                alert("Please select a snack and quantity");
+                return;
+            }
+            
+            const snack = snacks.find(s => s.snack_id === snackId);
+            if (!snack) return;
+            
+            const existingItem = cart.find(item => item.snack_id === snackId);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    snack_id: snackId,
+                    snack_name: snack.snack_name,
+                    price: snack.price,
+                    quantity: quantity
+                });
+            }
+            
+            updateCartDisplay();
+            
+            quantityInput.value = 1;
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            const totalAmount = document.getElementById('total-amount');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p style="color: #888; text-align: center;">No items added yet</p>';
+                cartTotal.innerHTML = 'Total: ₹0';
+                totalAmount.textContent = '0';
+                return;
+            }
+            
+            let total = 0;
+            cartItems.innerHTML = '';
+            
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'cart-item';
+                itemElement.innerHTML = `
+                    <div>
+                        <strong>${item.snack_name}</strong>
+                        <br>
+                        <small>₹${item.price} x ${item.quantity} = ₹${itemTotal}</small>
+                    </div>
+                    <button type="button" onclick="removeFromCart(${index})" class="remove-btn">
+                        Remove
+                    </button>
+                `;
+                cartItems.appendChild(itemElement);
+            });
+            
+            cartTotal.innerHTML = `<strong>Total: ₹${total}</strong>`;
+            totalAmount.textContent = total;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartDisplay();
+        }
+
+        window.onload = async function() {
+            const bookingId = localStorage.getItem('currentBookingId');
+            if (bookingId) {
+                document.getElementById('booking-id').value = bookingId;
+            }
+            
+            const snackMenu = document.getElementById('snack-menu');
+            const snackSelect = document.getElementById('snack-select');
+
+            try {
+                const response = await fetch('http://localhost:3000/snacks');
+                snacks = await response.json();
+
+                snacks.forEach(snack => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${snack.snack_name}</span> <span>₹${snack.price}</span>`;
+                    snackMenu.appendChild(li);
+
+                    const option = document.createElement('option');
+                    option.value = snack.snack_id;
+                    option.textContent = `${snack.snack_name} - ₹${snack.price}`;
+                    snackSelect.appendChild(option);
+                });
+            } catch (error) {
+                snackMenu.innerHTML = '<li>Error loading menu.</li>';
+            }
+        };
+
+        document.getElementById('order-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const bookingId = document.getElementById('booking-id').value;
+            
+            if (cart.length === 0) {
+                alert("Please add at least one item to your order");
+                return;
+            }
+
+            try {
+                const orderPromises = cart.map(item => 
+                    fetch('http://localhost:3000/orders', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            booking_id: parseInt(bookingId),
+                            snack_id: item.snack_id,
+                            quantity: item.quantity
+                        })
+                    })
+                );
+
+                const responses = await Promise.all(orderPromises);
+                const allSuccessful = responses.every(response => response.ok);
+                
+                if (allSuccessful) {
+                    alert(`✅ Order placed successfully!\n${cart.length} item(s) ordered.`);
+                    cart = [];
+                    updateCartDisplay();
+                    this.reset();
+                } else {
+                    alert("Some items failed to order. Please try again.");
+                }
+            } catch (error) {
+                console.error('Order error:', error);
+                alert('An error occurred while placing the order.');
+            }
+        });
+    </script>
+
+</body>
+</html>

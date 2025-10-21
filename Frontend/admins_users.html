@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Users - Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1a1a1a; color: white; }
+        .container { padding: 20px; }
+        h1 { color: #d9534f; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #444; text-align: left; }
+        thead { background-color: #333; }
+        a { text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>All Users</h1>
+        <p><a href="admin.html" style="color: lightblue;">&larr; Back to Dashboard</a></p>
+
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Registration Date</th>
+                </tr>
+            </thead>
+            <tbody id="users-tbody"></tbody>
+         </table>
+    </div>
+
+  <script>
+    async function fetchUsers() {
+        console.log("fetchUsers() started");
+        
+        try {
+            console.log("Making API request...");
+            const response = await fetch('http://localhost:3000/admin/users');
+            
+            console.log("Response status:", response.status);
+            console.log("Response ok:", response.ok);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const users = await response.json();
+            console.log("Users data received:", users);
+            console.log("Number of users:", users.length);
+
+            const tbody = document.getElementById('users-tbody');
+            console.log("Table body element:", tbody);
+            
+            if (!tbody) {
+                throw new Error("Could not find table body with id 'users-tbody'");
+            }
+
+            tbody.innerHTML = '';
+
+            if (users.length === 0) {
+                console.log("No users found in response");
+                tbody.innerHTML = '<tr><td colspan="5">No users found in database</td></tr>';
+                return;
+            }
+
+            console.log("Populating table with users...");
+            users.forEach((user, index) => {
+                console.log(`Adding user ${index + 1}:`, user);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || '-'}</td>
+                    <td>${new Date(user.Registration_date).toLocaleString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            console.log("Table populated successfully!");
+            console.log("Final table rows:", tbody.children.length);
+            
+        } catch (err) {
+            console.error("Error in fetchUsers:", err);
+            const tbody = document.getElementById('users-tbody');
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:red;">Error: ${err.message}</td></tr>`;
+            }
+        }
+    }
+
+    window.onload = function() {
+        console.log("Page loaded completely");
+        console.log("Looking for table body...");
+        const tbody = document.getElementById('users-tbody');
+        console.log("Table body found:", tbody);
+        fetchUsers();
+    };
+</script>
+</body>
+</html>

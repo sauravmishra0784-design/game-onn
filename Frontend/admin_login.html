@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login - Game ONN</title>
+    <style>
+        body { font-family: Arial; background: #222; color: white; text-align: center; }
+        form { background: #333; padding: 20px; margin: 100px auto; width: 300px; border-radius: 10px; }
+        input { width: 90%; padding: 8px; margin: 8px 0; border: none; border-radius: 5px; }
+        button { background: #d9534f; color: white; padding: 10px; border: none; border-radius: 5px; width: 100%; font-size: 1.1em; }
+        button:hover { background: #c9302c; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Game ONN - Admin Portal</h2>
+    <form id="adminLoginForm">
+        <input type="text" id="username" placeholder="Admin Username" required><br>
+        <input type="password" id="password" placeholder="Admin Password" required><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <script>
+        document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('http://localhost:3000/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            
+            if (response.ok) {
+             window.location.href = 'admin.html';
+            } else {
+                const result = await response.text();
+                alert(`Login Failed: ${result}`);
+            }
+        });
+    </script>
+</body>
+</html>
