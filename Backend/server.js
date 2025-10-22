@@ -1,9 +1,9 @@
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
 const cors = require("cors");
 const path = require("path"); // ADD THIS
-
 const app = express();
 const port = 3000;
 
@@ -12,13 +12,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public'))); // ADD THIS LINE
 
-// ... rest of your existing code remains EXACTLY THE SAME
+
+
 
 const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "Saurav124@",
-    database: "gameonn_db"
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD, // <-- Reads the password from .env
+  database: process.env.DB_NAME
 });
 
 db.connect((err) => {
