@@ -1,12 +1,12 @@
-# 🎮 GAME-ONN – Gaming Café Booking System
+ GAME-ONN – Gaming Café Booking System
 
-**GAME-ONN** is a full-stack web application developed as part of a college project to simplify the daily operations of a gaming café.  
+GAME-ONN is a full-stack web application developed as part of a college project to simplify the daily operations of a gaming café.  
 It allows users to book PCs, track sessions, and order snacks while providing an admin panel to manage users, bookings, and overall café activity.
 
 ---
 
-## 
-🔧 Features
+
+Features
 - User registration and login  
 - Real-time PC slot booking  
 - Admin dashboard to monitor sessions and users  
@@ -15,15 +15,15 @@ It allows users to book PCs, track sessions, and order snacks while providing an
 
 ---
 
-## 🧠 Tech Stack
-**Frontend:** HTML, CSS, JavaScript  
-**Backend:** Node.js, Express.js  
-**Database:** MySQL  
-**Tools Used:** MySQL Workbench, Visual Studio Code  
+ Tech Stack
+*Frontend:* HTML, CSS, JavaScript  
+*Backend:* Node.js, Express.js  
+*Database:* MySQL  
+*Tools Used:* MySQL Workbench, Visual Studio Code  
 
 ---
 
-## 🚀 Setup and Usage
+Setup and Usage
 
 1. **Clone this repository**
    ```bash
@@ -63,7 +63,7 @@ Run the app
 node server.js
 Open in browser
 Visit http://localhost:3000
-👨‍💻 Author
+Author
 Developed by Saurav Mishra
 
 B.Sc. IT – KET’s V.G. Vaze College of Arts, Science and Commerce
